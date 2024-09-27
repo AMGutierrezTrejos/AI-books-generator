@@ -5,7 +5,7 @@ function StorySubjectInput({userSelection}:any) {
   return (
     <div>
       <label className="font-bold text-4xl text-primary">
-        1. Subject of your story
+        1. Subject of your story.
       </label>
       <Textarea
         placeholder="Write the subject of the story which you want to create."
