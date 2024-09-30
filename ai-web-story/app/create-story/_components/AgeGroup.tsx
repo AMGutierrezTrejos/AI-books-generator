@@ -1,8 +1,9 @@
 "use client";
 import Image from 'next/image';
 import React, { useState } from 'react'
+import { OptionField } from './StoryType';
 
-function AgeGroup() {
+function AgeGroup({ userSelection }: any) {
   
     const OptionList = [
         {
@@ -23,6 +24,12 @@ function AgeGroup() {
       ];
     
       const [selectedOption, setSelectedOption] = useState<string>();
+
+      const onUserSelect = (item: OptionField) => {
+        setSelectedOption(item.label);
+        userSelection({ fieldValue: item?.label, fieldName: "ageGroup" });
+      };
+
       return (
         <div>
           <label className="font-bold text-4xl text-primary">
@@ -33,9 +40,9 @@ function AgeGroup() {
             {OptionList.map((item, index) => (
               <div
                 className={`relative grayscale hover:grayscale-0 cursor-pointer p-1 ${selectedOption==item.label ? "grayscale-0 border rounded-3xl border-primary" : "grayscale"}`}
-                onClick={() => setSelectedOption(item.label)}
+                onClick={() => onUserSelect(item)}
               >
-                <h2 className="absolute bottom-5 text-2xl text-black text-center w-full font-bold">
+                <h2 className="absolute bottom-3 text-2xl text-black text-center w-full font-bold">
                   {item.label}
                 </h2>
                 <Image
