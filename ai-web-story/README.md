@@ -42,3 +42,7 @@ using NeonDB with postgreSQL and Next.js
 using Clerk to authenticate and UI components.
 UntitledUI.com to get free logos.
 nextUI.org to get free UI components.
+gemini API to generate stories.
+flaticon.com to get free icons for loader component.
+replicate to generate AI images.
+firebase to store and retrieve data.
