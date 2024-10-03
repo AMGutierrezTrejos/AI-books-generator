@@ -15,6 +15,8 @@ import uuid4 from "uuid4";
 import CustomLoader from "./_components/CustomLoader";
 import axios from "axios";
 import { url } from "inspector";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "react-toastify";
 
 const CREATE_STORY_PROMPT = process.env.NEXT_PUBLIC_CREATE_STORY_PROMPT;
 
@@ -34,6 +36,9 @@ function CreateStory() {
   const [formData, setFormData] = useState<formDataType>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const notify = (msg: string) => toast(msg);
+  const notifyError = (msg: string) => toast.error(msg);
+  const { user } = useUser();
 
   /**
    *  used to add data to form
@@ -42,7 +47,11 @@ function CreateStory() {
    */
 
   const onHandleUserSelection = (data: fieldData) => {
-    console.log(data);
+    if (data.fieldName !== "storySubject") {
+      notify(`You selected ${data.fieldValue} for ${data.fieldName}`);
+    }
+
+    // console.log(data);
     setFormData((prev: any) => ({
       ...prev,
       [data.fieldName]: data.fieldValue,
@@ -86,8 +95,8 @@ function CreateStory() {
       );
 
       console.log(resp);
-      router?.replace('view-story/'+resp[0].storyId)
-
+      notify("Story generated successfully");
+      router?.replace("view-story/" + resp[0].storyId);
 
       // console.log(imageResp?.data);
       // console.log(result?.response.text());
@@ -95,6 +104,7 @@ function CreateStory() {
       setLoading(false);
     } catch (e) {
       console.log(e);
+      notifyError("Error generating story");
       setLoading(false);
     }
 
@@ -116,7 +126,10 @@ function CreateStory() {
           ageGroup: formData?.ageGroup,
           imageStyle: formData?.imageStyle,
           output: JSON.parse(output),
-          coverImage: imageUrl
+          coverImage: imageUrl,
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+          userImage: user?.imageUrl,
+          userName: user?.username,
         })
         .returning({ storyId: StoryData?.storyId });
       setLoading(false);
