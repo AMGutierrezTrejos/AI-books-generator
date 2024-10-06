@@ -33,9 +33,11 @@ function ViewStory({ params }: any) {
         <div>
           <BookCoverPage imageUrl={story?.coverImage} />
         </div>
-        {
-            [...Array(story?.pages).keys()]
-        }
+        {[...Array(story?.output?.chapters?.length)].map((item, index) => (
+          <div>
+            <h2>{index}</h2>
+          </div>
+        ))}
       </HTMLFlipBook>
     </div>
   );
