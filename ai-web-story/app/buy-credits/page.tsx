@@ -41,29 +41,38 @@ function BuyCredits() {
   const notifyError = (msg: string) => toast.error(msg);
 
   useEffect(() => {
-    if (selectedOption != 0) {
-      const price = Options[selectedOption-1].price;
-      console.log(price);
-      setSelectedPrice(price);
+    if (selectedOption !== 0) {
+      const selected = Options.find((option) => option.id === selectedOption);
+      if (selected) {
+        setSelectedPrice(selected.price);
+      }
     }
   }, [selectedOption]);
 
   const OnPaymentSuccess = async () => {
+    const selected = Options.find((option) => option.id === selectedOption);
+    if (!selected) {
+      notifyError("Invalid selection");
+      return;
+    }
+
     const result = await db
       .update(Users)
-      .set({ credit: Options[selectedOption].credits + userDetail.credits })
+      .set({ credit: selected.credits + userDetail?.credit })
       .where(eq(Users.userEmail, userDetail.userEmail));
+
     if (result) {
       notify("Credits added successfully");
       setUserDetail((prev: any) => ({
         ...prev,
-        ["credit"]: Options[selectedOption].credits + userDetail.credits,
+        ["credit"]: selected.credits + userDetail?.credit,
       }));
       router.replace("/dashboard");
     } else {
       notifyError("Something went wrong with Server");
     }
   };
+
   return (
     <div className="min-h-screen p-10 md:px-20 lg:px-40 text-center">
       <h2 className="font-bold text-4xl text-primary">Add more Credits</h2>
