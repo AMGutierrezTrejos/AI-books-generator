@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import StorySubjectInput from "./_components/StorySubjectInput";
 import StoryType from "./_components/StoryType";
 import AgeGroup from "./_components/AgeGroup";
@@ -8,7 +8,7 @@ import ImageStyle from "./_components/ImageStyle";
 import { Button } from "@nextui-org/button";
 import { chatSession } from "@/config/GeminiAi";
 import { db } from "@/config/db";
-import { StoryData } from "@/config/schema";
+import { StoryData, Users } from "@/config/schema";
 import { useRouter } from "next/navigation";
 // @ts-ignore
 import uuid4 from "uuid4";
@@ -17,6 +17,8 @@ import axios from "axios";
 import { url } from "inspector";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "react-toastify";
+import { UserDetailContext } from "../_context/UserDetailContext";
+import { eq } from "drizzle-orm";
 
 const CREATE_STORY_PROMPT = process.env.NEXT_PUBLIC_CREATE_STORY_PROMPT;
 
@@ -39,6 +41,7 @@ function CreateStory() {
   const notify = (msg: string) => toast(msg);
   const notifyError = (msg: string) => toast.error(msg);
   const { user } = useUser();
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
 
   /**
    *  used to add data to form
@@ -61,6 +64,11 @@ function CreateStory() {
   };
 
   const GenerateStory = async () => {
+    if (userDetail.credit <= 0) {
+      notifyError("No credits left");
+      return;
+    }
+
     setLoading(true);
     const FINAL_PROMPT = CREATE_STORY_PROMPT?.replace(
       "{ageGroup}",
@@ -96,6 +104,7 @@ function CreateStory() {
 
       console.log(resp);
       notify("Story generated successfully");
+      await UpdateUserCredit();
       router?.replace("view-story/" + resp[0].storyId);
 
       // console.log(imageResp?.data);
@@ -107,10 +116,6 @@ function CreateStory() {
       notifyError("Error generating story");
       setLoading(false);
     }
-
-    //Save AI story in DB
-
-    //Generate Image
   };
 
   const SaveInDB = async (output: string, imageUrl: string) => {
@@ -139,6 +144,14 @@ function CreateStory() {
     }
   };
 
+  const UpdateUserCredit = async () => {
+    const result = await db
+      .update(Users)
+      .set({ credit: Number(userDetail?.credit - 1) })
+      .where(eq(Users.userEmail, user?.primaryEmailAddress?.emailAddress ?? ""))
+      .returning({ id: Users.id });
+  };
+
   return (
     <div className="p-10 md:px-20 lg:px-40">
       <h2 className="font-extrabold text-[70px] text-primary text-center">
@@ -165,7 +178,7 @@ function CreateStory() {
         <ImageStyle userSelection={onHandleUserSelection} />
       </div>
 
-      <div className="flex justify-end mt-10">
+      <div className="flex justify-end mt-10 flex-col items-end">
         <Button
           color="primary"
           disabled={loading}
@@ -174,6 +187,7 @@ function CreateStory() {
         >
           Generate AI Story
         </Button>
+        <span>1 Credit will be deducted</span>
       </div>
       <CustomLoader isLoading={loading} />
     </div>
