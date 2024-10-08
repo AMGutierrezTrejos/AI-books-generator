@@ -49,3 +49,4 @@ firebase to store and retrieve data.
 React-Toastify to display toast notifications.
 react page flip to generate the book for the stories.
 buildbuzz.ai to generate the book for the stories.
+react icons to get free icons (arrows, play buttons, etc).
