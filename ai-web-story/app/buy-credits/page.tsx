@@ -44,6 +44,7 @@ function BuyCredits() {
     if (selectedOption !== 0) {
       const selected = Options.find((option) => option.id === selectedOption);
       if (selected) {
+        console.log(selected.price);
         setSelectedPrice(selected.price);
       }
     }

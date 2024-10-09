@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import StoryItemCard from "./StoryItemCard";
 import CustomLoader from "@/app/create-story/_components/CustomLoader";
 
-type StoryItemType = {
+ export type StoryItemType = {
   id: number;
   storyType: string;
   ageGroup: string;
